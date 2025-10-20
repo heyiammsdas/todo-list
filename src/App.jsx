@@ -7,6 +7,10 @@ function App() {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [editIndex , setEditIndex] = useState(null) ;
+  const [editValue , setEditValue] = useState("") ;
+
+
   useEffect(() => {
     localStorage.setItem("todos", JSON.stringify(lists));
   }, [lists]);
@@ -25,6 +29,29 @@ function App() {
       )
     );
   }
+
+function startEdit(index) {
+    setEditIndex(index) ;
+    setEditValue(lists[index].text) ;
+}
+
+function saveEdit(index) {
+  if(editValue.trim() ==="") return ; 
+
+  setLists((prev) => prev.map((todo , i) => i===index ? {...todo , text:editValue} : todo)) ;
+  setEditIndex(null) ;
+  setEditValue("") ;
+
+
+}
+
+function cancelEdit() {
+
+  setEditIndex(null) ;
+  setEditValue("") ;
+
+}
+
 
   function deleteTodo(index) {
     setLists((prev) => prev.filter((_, i) => i !== index));
@@ -50,7 +77,7 @@ function App() {
           borderRadius: "12px",
           boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
           width: "90%",
-          maxWidth: "400px",
+          maxWidth: "600px",
         }}
       >
         <h1
@@ -107,25 +134,86 @@ function App() {
             <div
               key={index}
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "10px 12px",
-                background: "#fafafa",
-                border: "1px solid #eee",
-                borderRadius: "8px",
-                transition: "0.2s",
-              }}
+            display: "flex",
+            alignItems: "flex-start",     
+            justifyContent: "space-between",
+            gap: "10px",                  
+            padding: "10px 12px",
+            background: "#fafafa",
+            border: "1px solid #eee",
+            borderRadius: "8px",
+            transition: "0.2s",
+            wordBreak: "break-word",     
+    }}
             >
-              <span
+              {editIndex === index ? (
+                <>
+                <input type="text"
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+
                 style={{
+                   flex: 1,
+              padding: "10px 12px",
+              borderRadius: "8px",
+              border: "1px solid #ddd",
+              outline: "none",
+              fontSize: "1rem",
+                }}
+
+                />
+                <button  onClick={()=>saveEdit(index)} style={ {
+                    backgroundColor:"#214bf3ff" ,
+                 color:"#f6f0f0ff",
+                 border: "none" ,
+                  padding:"6px" ,
+                  marginRight:"6px",
+                  borderRadius:"5px",
+                  cursor:"pointer"
+                   }} >Save</button>
+                <button onClick={cancelEdit} style={
+                   {
+                    backgroundColor:"#939cc0ff" ,
+                 color:"#070707ff",
+                 border: "none" ,
+                  padding:"6px" ,
+                  marginRight:"6px",
+                  borderRadius:"5px",
+                  cursor:"pointer"
+                   }
+                } >Cancel</button>
+                
+                
+                
+                </>
+
+              ) : 
+              
+              (
+
+                <>
+                <span
+                style={{
+                  flex: 1,
+                  wordBreak: "break-word",
+                  overflowWrap: "break-word",
+                  whiteSpace: "pre-wrap",
                   textDecoration: todo.done ? "line-through" : "none",
                   color: todo.done ? "#888" : "#333",
-                  flex: 1,
-                }}
+      }}
               >
                 {todo.text}
               </span>
+              <button onClick={() =>startEdit(index)} style={{
+                 backgroundColor:"#2f4644" ,
+                 color:"#ffff",
+                 border: "none" ,
+                  padding:"6px" ,
+                  marginRight:"6px",
+                  borderRadius:"5px",
+                  cursor:"pointer"
+                  
+              }}>Edit</button>
               <button
                 onClick={() => toggleDone(index)}
                 style={{
@@ -140,6 +228,7 @@ function App() {
               >
                 {todo.done ? "Undo" : "Done"}
               </button>
+              
               <button
                 onClick={() => deleteTodo(index)}
                 style={{
@@ -153,6 +242,12 @@ function App() {
               >
                 Delete
               </button>
+                
+                </>
+
+              )
+              
+              } 
             </div>
           ))}
 
